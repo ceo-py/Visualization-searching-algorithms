@@ -13,6 +13,7 @@ SIZE_R = WIDTH // ROW
 SIZE_C = HEIGHT // COL
 steps = []
 selected_button = None
+hold_wall_draw = False
 puzzel_field = create_matrix()
 way_to_unlock = {}
 
@@ -88,18 +89,38 @@ while running:
         if symbol.name == "BLANK":
             continue
         if event.type == pygame.MOUSEBUTTONDOWN:
+            hold_wall_draw = True
             left_click, _, right_click = pygame.mouse.get_pressed()
             print(row, col)
             if row in (0, 1):
                 if col in (0, 1):
                     menu["selected"]["start"] = True
                     selected_button = ("start flag", 1)
+                    matrix_pos["start coordinates"] = symbol
                     menu["selected"]["end"] = False
+                    menu["selected"]["wall"] = False
 
-                elif col in (3, 4) and not menu["selected"]["end"]:
+                elif col in (3, 4):
                     menu["selected"]["end"] = True
                     selected_button = ("end flag", 4)
+                    matrix_pos["exit coordinates"] = symbol
                     menu["selected"]["start"] = False
+                    menu["selected"]["wall"] = False
+
+                elif col in (6, 7):
+                    menu["selected"]["wall"] = True
+                    selected_button = ("wall", 7)
+                    menu["selected"]["start"] = False
+                    menu["selected"]["end"] = False
+
+                elif col in (9, 10):
+                    menu["selected"]["go"] = True
+                    selected_button = ("start", 10)
+                    menu["selected"]["start"] = False
+                    menu["selected"]["end"] = False
+                    menu["selected"]["wall"] = False
+                    if all(x for x in matrix_pos.values()):
+                        search_for_exit(*matrix_pos["start coordinates"].position)
 
             elif left_click and menu["selected"]["start"]:
                 symbol.position_add(symbol, "start coordinates", "square_start_point")
@@ -107,16 +128,18 @@ while running:
             elif left_click and menu["selected"]["end"]:
                 symbol.position_add(symbol, "exit coordinates", "square_end_point")
 
-        elif event.type == pygame.KEYDOWN:
-            key = pygame.key.get_pressed()
-            if key[pygame.K_LEFT]:
-                symbol.wall()
+            elif left_click and menu["selected"]["wall"]:
+                symbol.wall(False)
 
-            elif key[pygame.K_UP]:
+            elif left_click and menu["selected"]["go"]:
                 if all(x for x in matrix_pos.values()):
                     search_for_exit(*matrix_pos["start coordinates"].position)
-                print(way_to_unlock)
 
+        if event.type == pygame.MOUSEBUTTONUP:
+            hold_wall_draw = False
+
+        elif hold_wall_draw and menu["selected"]["wall"] and event.type == MOUSEMOTION:
+            symbol.wall(True)
 
     draw_square()
     pygame.display.update()

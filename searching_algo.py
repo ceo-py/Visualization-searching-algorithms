@@ -6,7 +6,7 @@ START_ROW = 2
 CURRENT_PATH = os.getcwd()
 PICTURES = {}
 menu = {"selected" :{
-    "start": False, "end": False, "wall": False,
+    "start": False, "end": False, "wall": False, "go": False
 }}
 matrix_pos = {
     "start coordinates": None,
@@ -39,16 +39,15 @@ def create_matrix():
                 elif col == 3 or col == 4:
                     puzzel_field[row][col] = Figure("MENU STOP", (row, col))
                     puzzel_field[row][col].picture = "square_end_point"
+                elif col == 6 or col == 7:
+                    puzzel_field[row][col] = Figure("MENU WALL", (row, col))
+                    puzzel_field[row][col].picture = "square_wall"
+                elif col == 9 or col == 10:
+                    puzzel_field[row][col] = Figure("MENU GO", (row, col))
+                    puzzel_field[row][col].picture = "square_start"
                 else:
                     puzzel_field[row][col] = Figure("BLANK", (row, col))
                     puzzel_field[row][col].picture = "square_b"
-
-            # elif row in (0, 1) and col in (3, 4):
-            #     puzzel_field[row][col] = Figure("MENU", (row, col))
-            #     puzzel_field[row][col].picture = "square_end_point"
-            # else:
-            #     puzzel_field[row][col] = Figure("MENU", (row, col))
-            #     puzzel_field[row][col].picture = "square_b"
 
             elif row < START_ROW:
                 puzzel_field[row][col] = Figure("BLANK", (row, col))
@@ -76,8 +75,8 @@ class Figure:
         self.picture = picture
         matrix_pos[position] = symbol
 
-    def wall(self):
-        if self.wall_square:
+    def wall(self, shooting):
+        if self.wall_square and not shooting:
             self.wall_square = False
             self.picture = "square_empty"
         else:
