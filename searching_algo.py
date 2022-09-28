@@ -5,7 +5,9 @@ COL = 20
 START_ROW = 2
 CURRENT_PATH = os.getcwd()
 PICTURES = {}
-menu = {}
+menu = {"selected" :{
+    "start": False, "end": False, "wall": False,
+}}
 matrix_pos = {
     "start coordinates": None,
     "exit coordinates": None
@@ -30,13 +32,23 @@ def create_matrix():
     puzzel_field = [[int(0) for _ in range(COL)] for _ in range(ROW)]
     for row in range(ROW):
         for col in range(COL):
-            if row in (0, 1) and col in (0, 1):
-                if row == 0 and col == 0 :
-                    puzzel_field[row][col] = Figure("MENU", (row, col))
+            if row in (0, 1):
+                if col == 0 or col == 1:
+                    puzzel_field[row][col] = Figure("MENU START", (row, col))
                     puzzel_field[row][col].picture = "square_start_point"
+                elif col == 3 or col == 4:
+                    puzzel_field[row][col] = Figure("MENU STOP", (row, col))
+                    puzzel_field[row][col].picture = "square_end_point"
                 else:
-                    puzzel_field[row][col] = Figure("MENU", (row, col))
+                    puzzel_field[row][col] = Figure("BLANK", (row, col))
                     puzzel_field[row][col].picture = "square_b"
+
+            # elif row in (0, 1) and col in (3, 4):
+            #     puzzel_field[row][col] = Figure("MENU", (row, col))
+            #     puzzel_field[row][col].picture = "square_end_point"
+            # else:
+            #     puzzel_field[row][col] = Figure("MENU", (row, col))
+            #     puzzel_field[row][col].picture = "square_b"
 
             elif row < START_ROW:
                 puzzel_field[row][col] = Figure("BLANK", (row, col))

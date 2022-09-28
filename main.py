@@ -12,7 +12,7 @@ running = True
 SIZE_R = WIDTH // ROW
 SIZE_C = HEIGHT // COL
 steps = []
-
+selected_button = None
 puzzel_field = create_matrix()
 way_to_unlock = {}
 
@@ -28,7 +28,6 @@ def re_scale_all_pictures():
         elif key == "square_start":
             menu["start"] = pygame.transform.scale(pygame.image.load(link), (SIZE_C * 2, SIZE_R * 2))
         PICTURES[key] = pygame.transform.scale(pygame.image.load(link), (SIZE_C, SIZE_R))
-
 
 
 def game_over_result():
@@ -55,14 +54,22 @@ def search_for_exit(row, col):
     steps.remove((row, col))
 
 
+def selected_menu(selected_button, pos):
+    rect = menu[selected_button].get_rect(center=(pos * SIZE_C, SIZE_R))
+    pygame.draw.rect(window, "BLUE", rect, 4)
+
+
+def draw_menu():
+    [window.blit(menu[x], (y * SIZE_C, 0 * SIZE_R)) for x, y in (("start flag", 0), ("end flag", 3), ("wall", 6), ("start", 9))]
+
+
 def draw_square():
     for row in range(ROW):
         for col in range(COL):
             window.blit(PICTURES[puzzel_field[row][col].picture], (col * SIZE_C, row * SIZE_R))
-    window.blit(menu["start flag"], (0 * SIZE_C, 0 * SIZE_R))
-    window.blit(menu["end flag"], (3 * SIZE_C, 0 * SIZE_R))
-    window.blit(menu["wall"], (6 * SIZE_C, 0 * SIZE_R))
-    window.blit(menu["start"], (9 * SIZE_C, 0 * SIZE_R))
+    draw_menu()
+    if selected_button:
+        selected_menu(*selected_button)
 
 
 re_scale_all_pictures()
@@ -82,15 +89,23 @@ while running:
             continue
         if event.type == pygame.MOUSEBUTTONDOWN:
             left_click, _, right_click = pygame.mouse.get_pressed()
+            print(row, col)
+            if row in (0, 1):
+                if col in (0, 1):
+                    menu["selected"]["start"] = True
+                    selected_button = ("start flag", 1)
+                    menu["selected"]["end"] = False
 
-            if symbol.name == "MENU":
-                pass
+                elif col in (3, 4) and not menu["selected"]["end"]:
+                    menu["selected"]["end"] = True
+                    selected_button = ("end flag", 4)
+                    menu["selected"]["start"] = False
 
-            elif right_click:
-                symbol.position_add(symbol, "exit coordinates", "square_end_point")
-
-            elif left_click:
+            elif left_click and menu["selected"]["start"]:
                 symbol.position_add(symbol, "start coordinates", "square_start_point")
+
+            elif left_click and menu["selected"]["end"]:
+                symbol.position_add(symbol, "exit coordinates", "square_end_point")
 
         elif event.type == pygame.KEYDOWN:
             key = pygame.key.get_pressed()
